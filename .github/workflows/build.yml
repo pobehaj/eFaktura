@@ -33,7 +33,7 @@ jobs:
           pyinstaller --onefile --windowed --name efaktury \
             --hidden-import=PIL._tkinter_finder \
             --collect-submodules reportlab \
-            efaktury.py
+            main.py
 
       - name: Uloženie binárky ako artefakt
         uses: actions/upload-artifact@v4
