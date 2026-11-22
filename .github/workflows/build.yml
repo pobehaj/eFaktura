@@ -1,0 +1,42 @@
+name: Build binárky
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Inštalácia Tk (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+
+      - name: Inštalácia závislostí
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Zostavenie binárky
+        run: |
+          pyinstaller --onefile --windowed --name efaktury \
+            --hidden-import=PIL._tkinter_finder \
+            --collect-submodules reportlab \
+            efaktury.py
+
+      - name: Uloženie binárky ako artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: efaktury-${{ runner.os }}
+          path: dist/
